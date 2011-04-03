@@ -21,3 +21,6 @@ wp-content/index.php
 wp-content/themes/index.php
 wp-includes/**
 >>
+
+Upon successful execution it will show the path to 
+the target dir where the copies files are located
