@@ -167,14 +167,8 @@ def show_usage():
     line = '-'
     line_length = 70
     print line * line_length
-    print  """
-    Welcome to upacker or more precisely Upload packer. 
-    This tool is meant to be used to make the task of 
-    copying or packing only a few files from a project to a 
-    directory while preserving the original directory structure.
-    Thus making it convenient to upload them the the server
-    """
-    print '\tUsage: python pack.py <path_to_file>'
+    readme = open('../docs/README.txt')
+    print readme.read()
     print line * line_length  
     
         
