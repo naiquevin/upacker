@@ -158,11 +158,35 @@ class Packer(object):
         return {
             "target_path" : self.config["target_dir"]
             }
-        
+
+
+def show_usage():
+    """
+    will show the usage if no argument is found
+    """
+    line = '-'
+    line_length = 70
+    print line * line_length
+    print  """
+    Welcome to upload Packer or simply upacker. 
+    This tool is meant to be used to make the task of 
+    copying or packing only a few files from a project to a 
+    directory while preserving the original directory structure.
+    Thus making it convenient to upload them the the server
+    """
+    print '\tUsage: python pack.py <path_to_file>'
+    print line * line_length  
+    
         
 # test run
 if __name__ == "__main__":
-    script, filename = argv
+    
+    try:
+        script, filename = argv
+    except ValueError:
+        show_usage()
+        exit(1)
+
     config = parse_lines(filename)
     p = Packer(config) 
     output = p.output()
