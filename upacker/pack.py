@@ -149,6 +149,15 @@ class Packer(object):
         if not os.path.exists(target_dir_path):
             os.makedirs(target_dir_path)  
         return target_dir_path
+
+    def output(self):
+        """
+        create a message to be shown to the user, after the process
+        is successfully completed
+        """
+        return {
+            "target_path" : self.config["target_dir"]
+            }
         
         
 # test run
@@ -156,4 +165,5 @@ if __name__ == "__main__":
     script, filename = argv
     config = parse_lines(filename)
     p = Packer(config) 
-
+    output = p.output()
+    print "Project files packed to %s" % (output["target_path"])
