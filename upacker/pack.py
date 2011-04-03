@@ -6,7 +6,7 @@ from shutil import copy, copytree, rmtree
 
 def parse_lines(filename):
     """
-    parse lines from tthe file and return 
+    parse lines from the file and return 
     a config dictionary
     """
     f = open(filename)
@@ -29,6 +29,8 @@ def parse_lines(filename):
 
 class Packer(object):
     """
+    This class will take the config object, loops through the 
+    lines in the input file and make the correct file operations    
     """
 
     def __init__(self, config):
