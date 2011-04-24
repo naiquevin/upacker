@@ -1,9 +1,8 @@
 basepath=/home/vineet/public_html/
-basedir=blog
+basedir=opencart_v1.4.9.4
 
 index.php
-wp-cron.php
-wp-content/index.php
-wp-content/themes/index.php
-wp-includes/**
-
+catalog/controller/account/account.php
+catalog/controller/account/create.php
+catalog/controller/feed/*
+catalog/model/**

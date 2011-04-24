@@ -1,6 +1,8 @@
+#!/usr/bin/python2.6
+
 import os
 from sys import argv
-from shutil import copy, copytree, rmtree
+from shutil import copy, copytree, rmtree, ignore_patterns
 
 # the upload packer
 
@@ -23,18 +25,23 @@ def parse_lines(filename):
         "source_dir" : source_dir,
         "source_path" : source_path,
         "target_dir" : target_dir,
-        "lines" : lines[2:]
+        "lines" : lines[2:],
+        "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
         }
 
 
 class Packer(object):
     """
-    This class will take the config object, loops through the 
-    lines in the input file and make the correct file operations    
+    Take a config object as input, loops through the 
+    lines in the input file and make the correct file operations 
+    for copying all the files mentioned in the file to the 
+    target location.
     """
 
     def __init__(self, config):
         self.config = config
+        # endings for all files to be ignored derived from ignore list
+        self.ignore_file_endings = [ignore[ignore.find('*')+1:] for ignore in self.config["ignore"]]
         self.__del_existing()
         self.__start()
         
@@ -57,7 +64,10 @@ class Packer(object):
 
     def __pack(self, line):
         """
-        parse each line and handle various cases
+        parse each line and handle various cases which are - 
+        * (all files inside a dir),
+        ** (entire dir tree below a dir)
+        filename (a file)
         """
         struct = line.split('/')
         # print struct    
@@ -87,8 +97,6 @@ class Packer(object):
         # copy the file
         copy(file_path, target_dir_path)
 
-    
-    # handle case *
     def __pack_dir(self, dir_path):
         """
         handle the case '*'
@@ -106,8 +114,8 @@ class Packer(object):
             # list comprehension expression
             if os.path.isdir(full_path):
                 continue
-            else:
-                # copy the file
+            elif not self.__is_ignored(child):
+                # copy the file if its not to be ignored
                 copy(full_path, target_dir_path)
                 
     def __pack_dir_recursive(self, dir_path):
@@ -118,7 +126,7 @@ class Packer(object):
         """
         full_dir_path = self.__get_src_path(dir_path)
         target_dir_path  = self.__get_target_path(dir_path)
-        copytree(full_dir_path, target_dir_path)
+        copytree(full_dir_path, target_dir_path, ignore=ignore_patterns(*tuple(self.config["ignore"])))
 
     def __get_src_path(self, dir_path):
         """
@@ -150,6 +158,16 @@ class Packer(object):
             os.makedirs(target_dir_path)  
         return target_dir_path
 
+    def __is_ignored(self, filename):
+        """
+        checks if the file should be ignored while copying 
+        all files from inside a dir.
+        """
+        for end in self.ignore_file_endings:
+            if filename.endswith(end):
+                return True
+        return False
+
     def output(self):
         """
         create a message to be shown to the user, after the process
@@ -167,7 +185,7 @@ def show_usage():
     line = '-'
     line_length = 70
     print line * line_length
-    readme = open('../docs/README.txt')
+    readme = open('../README.txt')
     print readme.read()
     print line * line_length  
     
