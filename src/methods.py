@@ -1,21 +1,18 @@
 #!/usr/bin/python
 
-import os
+import os, subprocess
 
-def get_config_from_file(filename):
+def use_file(filename):
     """
     parse lines from a file and return 
     a config dictionary
     """
     f = open(filename)
-
     lines = f.read().split('\n') 
-
     source_base_path = lines[0].split('=')[1]
     source_dir = lines[1].split('=')[1]
     source_path = source_base_path + source_dir + '/'
-    target_dir = '../target/' + source_dir + '/'
-    
+    target_dir = '../target/' + source_dir + '/'    
     return {
         "source_base_path" : source_base_path,
         "source_dir" : source_dir,
@@ -25,30 +22,39 @@ def get_config_from_file(filename):
         "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
         }
 
-def get_config_from_git(gitargs):
+def use_git(gitargs):
     """
     will run the git show command and return a config dictionary
-    @param  gitargs = (source_path, SHA1, SHA2(optional))
+    @param  gitargs = [source_path, [SHA1], [SHA2]]
     """
-    # if source path without trailing slash, show error
-    
+    working_dir = gitargs.pop(0)
+    sha = [None, None]
+    i = 0
+    while len(gitargs):
+        sha[i] = gitargs.pop(0)
+        i = i+1
+    # if source path without trailing slash, show error    
     # get source base path
-    split_path = source_path.split('/');
-    source_base_path = split_path[0:-2]
-
+    split_path = working_dir.split('/');
+    source_base_path = "/".join(split_path[0:-2]) + '/'
     # get source dir name
     source_dir = split_path[-2]
-
     # get target dir
-    target_dir = '../target/' + source_dir + '/'    
-
-    lines = []
-
+    target_dir = '../target/' + source_dir + '/'
+    # run git command from working_using Popen
+    command = 'git show --pretty="format:" --name-only '
+    if sha[0] is not None:
+        command += ' %s ' % (sha[0])
+    if sha[1] is not None:
+        command += ' %s ' % (sha[1])
+    proc = subprocess.Popen(command, cwd=working_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    (output, error) = proc.communicate()
+    lines = output.split()
     return {
         "source_base_path" : source_base_path,
         "source_dir" : source_dir,
-        "source_path" : source_path,
+        "source_path" : working_dir,
         "target_dir" : target_dir,
-        "lines" : lines[2:],
+        "lines" : lines,
         "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
         }

@@ -3,6 +3,7 @@
 import os
 from sys import argv
 from shutil import copy, copytree, rmtree, ignore_patterns
+import methods
 
 # the upload packer
 
@@ -192,14 +193,24 @@ def show_usage():
         
 # test run
 if __name__ == "__main__":
-    
+    valid = True
     try:
-        script, filename = argv
-    except ValueError:
+        use = argv[1]    
+        if use == '--file':
+            configfile = argv[2]
+            config = methods.use_file(configfile)
+        elif use == '--git':
+            git_args = argv[2:]
+            config = methods.use_git(git_args) 
+        else:
+            valid = False
+    except IndexError:
+        valid = False
+
+    if not valid:
         show_usage()
         exit(1)
-
-    config = parse_lines(filename)
+    
     p = Packer(config) 
     output = p.output()
     print "Project files packed to %s" % (output["target_path"])

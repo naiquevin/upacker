@@ -26,7 +26,7 @@ Upon successful execution it will show the path to
 the target dir where the copies files are located
 
 # from file
-python pack --file <path_to_file>
+python pack.py --file <path_to_file>
 
 # from git directly
-python pack --git <source_dir> <SHA1> <SHA1 optional>
+python pack.py --git <source_dir> <SHA1> <SHA1 optional>
