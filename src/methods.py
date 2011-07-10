@@ -2,59 +2,111 @@
 
 import os, subprocess
 
-def use_file(filename):
-    """
-    parse lines from a file and return 
-    a config dictionary
-    """
-    f = open(filename)
-    lines = f.read().split('\n') 
-    source_base_path = lines[0].split('=')[1]
-    source_dir = lines[1].split('=')[1]
-    source_path = source_base_path + source_dir + '/'
-    target_dir = '../target/' + source_dir + '/'    
-    return {
-        "source_base_path" : source_base_path,
-        "source_dir" : source_dir,
-        "source_path" : source_path,
-        "target_dir" : target_dir,
-        "lines" : lines[2:],
-        "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
+def find_method(cmd_argv):
+    if cmd_argv[1] == '--file':
+        method = 'file'
+    elif cmd_argv[1] == '--git':
+        method = 'git'
+    else:
+        raise UnsupportedMethodError('method not supported')
+    return method
+
+class FileReader(object):
+
+    method = "file"
+
+    def __init__(self, cmd_argv):
+        self.argv = cmd_argv
+        self.file = self.argv[2]        
+        
+    def get_config(self):
+        """
+        parse lines from a file and return 
+        a config dictionary
+        """
+        lines = self.get_lines()
+        source_base_path = FileReader.get_property(lines[0])
+        if not source_base_path.endswith('/'):
+            raise TrailingSlashError('Trailing slash missing in one or more paths specified')            
+        source_dir = FileReader.get_property(lines[1])
+        source_path = source_base_path + source_dir + '/'
+        target_dir = '../target/' + source_dir + '/'    
+        return {
+            "source_base_path" : source_base_path,
+            "source_dir" : source_dir,
+            "source_path" : source_path,
+            "target_dir" : target_dir,
+            "lines" : lines[2:],
+            "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
         }
 
-def use_git(gitargs):
-    """
-    will run the git show command and return a config dictionary
-    @param  gitargs = [source_path, [SHA1], [SHA2]]
-    """
-    working_dir = gitargs.pop(0)
-    sha = [None, None]
-    i = 0
-    while len(gitargs):
-        sha[i] = gitargs.pop(0)
-        i = i+1
-    # if source path without trailing slash, show error    
-    # get source base path
-    split_path = working_dir.split('/');
-    source_base_path = "/".join(split_path[0:-2]) + '/'
-    # get source dir name
-    source_dir = split_path[-2]
-    # get target dir
-    target_dir = '../target/' + source_dir + '/'
-    # run git command from working_using Popen
-    command = 'git show --pretty="format:" --name-only '
-    if sha[0] is not None:
-        command += ' %s ' % (sha[0])
-    if sha[1] is not None:
-        command += ' %s ' % (sha[1])
-    proc = subprocess.Popen(command, cwd=working_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    (output, error) = proc.communicate()
-    lines = output.split()
-    return {
-        "source_base_path" : source_base_path,
-        "source_dir" : source_dir,
-        "source_path" : working_dir,
-        "target_dir" : target_dir,
-        "lines" : lines,
-        "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
-        }
+    def get_lines(self):
+        f = open(self.file)
+        return f.read().split('\n')
+
+    @staticmethod
+    def get_property(line):
+        prop = line.split("=")
+        try:
+            return prop[1]
+        except IndexError:
+            print 'Error: Properties specified in the manifest file not of the form key=value'
+            exit()
+
+
+class GitReader(object):
+    
+    method = 'git'
+
+    git_command = 'git show --pretty="format:" --name-only '
+
+    def __init__(self, cmd_argv):
+        gitargs = cmd_argv[2:]        
+        self.working_dir = gitargs.pop(0)
+        self.hashes = []
+        while len(gitargs):
+            self.hashes.append(gitargs.pop(0))
+
+    def get_config(self):
+        # if source path without trailing slash, show error    
+        # get source base path
+        split_path = self.working_dir.split('/');
+        source_base_path = "/".join(split_path[0:-2]) + '/'
+        # get source dir name
+        source_dir = split_path[-2]
+        # get target dir
+        target_dir = '../target/' + source_dir + '/'
+        # run git command from working_using Popen
+        self.command = GitReader._build_git_command(self.hashes)
+        lines = self._get_command_op()
+        return {
+            "source_base_path" : source_base_path,
+            "source_dir" : source_dir,
+            "source_path" : self.working_dir,
+            "target_dir" : target_dir,
+            "lines" : lines,
+            "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
+            }
+
+    @staticmethod
+    def build_git_command(hashes):
+        command = GitReader.command
+        for h in hashes:            
+            command += ' %s ' & h
+        return command
+
+    def _get_command_op(self):
+        proc = subprocess.Popen(command, cwd=self.working_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        (output, error) = proc.communicate()
+        lines = output.split()
+        return lines
+
+class UnsupportedMethodError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)        
+
+class TrailingSlashError(Exception):
+    def __init__(self, value):
+        Exception.__init__(self, value)

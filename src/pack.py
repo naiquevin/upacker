@@ -6,31 +6,6 @@ from shutil import copy, copytree, rmtree, ignore_patterns
 import methods
 
 # the upload packer
-
-def parse_lines(filename):
-    """
-    parse lines from the file and return 
-    a config dictionary
-    """
-    f = open(filename)
-
-    lines = f.read().split('\n') 
-
-    source_base_path = lines[0].split('=')[1]
-    source_dir = lines[1].split('=')[1]
-    source_path = source_base_path + source_dir + '/'
-    target_dir = '../target/' + source_dir + '/'
-    
-    return {
-        "source_base_path" : source_base_path,
-        "source_dir" : source_dir,
-        "source_path" : source_path,
-        "target_dir" : target_dir,
-        "lines" : lines[2:],
-        "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
-        }
-
-
 class Packer(object):
     """
     Take a config object as input, loops through the 
@@ -195,13 +170,15 @@ def show_usage():
 if __name__ == "__main__":
     valid = True
     try:
-        use = argv[1]    
-        if use == '--file':
-            configfile = argv[2]
-            config = methods.use_file(configfile)
-        elif use == '--git':
-            git_args = argv[2:]
-            config = methods.use_git(git_args) 
+        method = methods.find_method(argv)
+        if method == 'file':
+            reader = methods.FileReader(argv)
+            config = reader.get_config()
+        elif method == 'git':
+            print 'GitReader is still flaky. to be tested properly'
+            exit(1)
+            reader = methods.GitReader(argv)
+            config = reader.get_config()
         else:
             valid = False
     except IndexError:

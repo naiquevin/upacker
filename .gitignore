@@ -6,3 +6,4 @@
 
 # directories to ignore
 target/
+manifests/
