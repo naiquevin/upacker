@@ -58,7 +58,7 @@ class GitReader(object):
     
     method = 'git'
 
-    git_command = 'git show --pretty="format:" --name-only '
+    command_format = 'git %s --pretty="format:" --name-only'
 
     def __init__(self, cmd_argv):
         gitargs = cmd_argv[2:]        
@@ -77,7 +77,7 @@ class GitReader(object):
         # get target dir
         target_dir = '../target/' + source_dir + '/'
         # run git command from working_using Popen
-        self.command = GitReader._build_git_command(self.hashes)
+        self.command = self.build_git_command(self.hashes)
         lines = self._get_command_op()
         return {
             "source_base_path" : source_base_path,
@@ -89,14 +89,25 @@ class GitReader(object):
             }
 
     @staticmethod
-    def build_git_command(hashes):
-        command = GitReader.command
-        for h in hashes:            
-            command += ' %s ' & h
+    def find_git_command(hashes):
+        num_hashes = len(hashes)
+        if num_hashes == 2:
+            cmd = 'diff'
+        elif num_hashes == 1:
+            cmd = 'show'
+        else:
+            raise GitHashError('Unsupported number(%d) of Git hashes' % (num_hashes))
+        return cmd
+
+    def build_git_command(self, hashes):
+        cmd = GitReader.find_git_command(hashes)
+        command = GitReader.command_format % (cmd)        
+        for h in hashes:
+            command += ' %s' % h
         return command
 
     def _get_command_op(self):
-        proc = subprocess.Popen(command, cwd=self.working_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(self.command, cwd=self.working_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (output, error) = proc.communicate()
         lines = output.split()
         return lines
@@ -110,3 +121,8 @@ class UnsupportedMethodError(Exception):
 class TrailingSlashError(Exception):
     def __init__(self, value):
         Exception.__init__(self, value)
+
+class GitHashError(Exception):
+    def __init__(self, value):
+        Exception.__init__(self, value)
+

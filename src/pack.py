@@ -175,8 +175,6 @@ if __name__ == "__main__":
             reader = methods.FileReader(argv)
             config = reader.get_config()
         elif method == 'git':
-            print 'GitReader is still flaky. to be tested properly'
-            exit(1)
             reader = methods.GitReader(argv)
             config = reader.get_config()
         else:
