@@ -1,0 +1,7 @@
+# file mode
+python pack.py --file <path_to_manifest>
+
+sample manifest file can be found in ./docs/sample.txt
+
+# git mode
+python pack.py --git <path_git_working_dir> <SHA1> <SHA1 optional>

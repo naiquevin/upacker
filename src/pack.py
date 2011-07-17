@@ -160,10 +160,13 @@ def show_usage():
     """
     line = '-'
     line_length = 70
-    print line * line_length
-    readme = open('../README.txt')
+    sep = line * line_length
+    print sep
+    print 'Upacker Usage:'
+    print sep
+    readme = open('../docs/usage.txt')
     print readme.read()
-    print line * line_length  
+    print sep
     
         
 # test run

@@ -1,32 +1,26 @@
-Welcome to upacker or more precisely Upload packer. 
-This tool is meant to be used for copying or packing
-only a few files from a project to a directory while
-preserving the original directory structure.
-Thus making it convenient to upload all of them to
-the server at once
+General Information
+-------------------
+Upacker is simple tool/utility that can be used to "pack" a set of files 
+across various directories of a project for uploading.
+The original directory structure of the project in preserved thus making 
+it very convenient to upload the files at once.
 
-Usage: python pack.py <path_to_file>
+It can pack files under a Git working tree from the commit hash(es).
+There is also a file mode in which it reads a manifest file that contains a 
+list of the files to be packed.
+The file mode can be very useful if there are deleted/files between two commits
+and the Git archive command fails.
 
-path_to_file = path to the file in which which files
-to copy is specified
+Note:
+----
+But this is my first python code and it was written mainly for learning purpose.
+I use it myself but have a feeling that its a very silly app and what it 
+does can already be handled by Git!
 
-sample file contents:
-<<
-basepath=/home/vineet/public_html/
-basedir=blog
-
-index.php
-wp-cron.php
-wp-content/index.php
-wp-content/themes/index.php
-wp-includes/**
->>
-
-Upon successful execution it will show the path to 
-the target dir where the copies files are located
-
-# from file
+Usage
+-----
+# file mode
 python pack.py --file <path_to_file>
 
-# from git directly
-python pack.py --git <source_dir> <SHA1> <SHA1 optional>
+# git mode
+python pack.py --git <git_wt_source> <SHA1> <SHA1 optional>

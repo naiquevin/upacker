@@ -1,0 +1,8 @@
+basepath=/home/vineet/public_html/
+basedir=blog
+
+index.php
+wp-cron.php
+wp-content/index.php
+wp-content/themes/index.php
+wp-includes/**
