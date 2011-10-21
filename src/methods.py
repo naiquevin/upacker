@@ -37,7 +37,7 @@ class FileReader(object):
             "source_path" : source_path,
             "target_dir" : target_dir,
             "lines" : lines[2:],
-            "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git']
+            "ignore" : ['*.pyc', '*.class', '*~', '.svn', '.git', '.gitignore']
         }
 
     def get_lines(self):
