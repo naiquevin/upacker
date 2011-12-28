@@ -1,9 +1,7 @@
 #!/usr/bin/python
 
 import os
-from sys import argv
 from shutil import copy, copytree, rmtree, ignore_patterns
-import methods
 
 # the upload packer
 class Packer(object):
@@ -151,44 +149,4 @@ class Packer(object):
         """
         return {
             "target_path" : self.config["target_dir"]
-            }
-
-
-def show_usage():
-    """
-    will show the usage if no argument is found
-    """
-    line = '-'
-    line_length = 70
-    sep = line * line_length
-    print sep
-    print 'Upacker Usage:'
-    print sep
-    readme = open('../docs/usage.txt')
-    print readme.read()
-    print sep
-    
-        
-# test run
-if __name__ == "__main__":
-    valid = True
-    try:
-        method = methods.find_method(argv)
-        if method == 'file':
-            reader = methods.FileReader(argv)
-            config = reader.get_config()
-        elif method == 'git':
-            reader = methods.GitReader(argv)
-            config = reader.get_config()
-        else:
-            valid = False
-    except IndexError:
-        valid = False
-
-    if not valid:
-        show_usage()
-        exit(1)
-    
-    p = Packer(config) 
-    output = p.output()
-    print "Project files packed to %s" % (output["target_path"])
+            }    

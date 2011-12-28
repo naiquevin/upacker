@@ -1,8 +1,0 @@
-basepath=/home/vineet/public_html/
-basedir=opencart_v1.4.9.4
-
-index.php
-catalog/controller/account/account.php
-catalog/controller/account/create.php
-catalog/controller/feed/*
-catalog/model/**
